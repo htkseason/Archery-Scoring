@@ -10,4 +10,4 @@ The project relies on [OpenCV 3.2.0](http://opencv.org/releases.html) and [Visio
   
 ### Demo  
   
-<img src="https://github.com/htkseason/Archery-Target-Score/blob/master/demo.jpg" width="60%"/>  
+<img src="https://github.com/htkseason/Archery-Target-Score/blob/master/demo.jpg" width="75%"/>  
