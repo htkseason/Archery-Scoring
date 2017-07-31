@@ -40,9 +40,11 @@ public final class Entrance {
 
 		Mat sub = new Mat();
 		Core.absdiff(bg, bow, sub);
-		Imgproc.medianBlur(sub, sub, 5);
+		Imgproc.blur(sub, sub, new Size(5, 5));
 		Imgproc.threshold(sub, sub, 0, 255, Imgproc.THRESH_OTSU);
+		Imgproc.blur(sub, sub, new Size(5, 5));
 		Imgproc.Canny(sub, sub, 50, 150);
+		ImUtils.imshow(sub);
 		Mat lines = new Mat();
 		Imgproc.HoughLinesP(sub, lines, 1, Math.PI / 180, 50, 100, 100);
 		return lines;
@@ -76,7 +78,6 @@ public final class Entrance {
 				Point outLier = nodeList.remove(0);
 				center.x = (center.x - outLier.x) / nodeList.size();
 				center.y = (center.y - outLier.y) / nodeList.size();
-				System.out.println(outLier);
 			}
 		} while (maxDistance > threshold);
 
