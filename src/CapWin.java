@@ -10,7 +10,7 @@ import org.opencv.videoio.VideoCapture;
 
 import pers.season.vml.ar.CameraData;
 import pers.season.vml.ar.Engine3D;
-import pers.season.vml.ar.FeatureTracker;
+import pers.season.vml.ar.TemplateDetector;
 import pers.season.vml.ar.MotionFilter;
 import pers.season.vml.util.ImUtils;
 
@@ -33,8 +33,8 @@ public class CapWin extends JFrame {
 
 		Mat template = Imgcodecs.imread("./target.jpg");
 		ImUtils.imshow(template);
-		FeatureTracker ft = new FeatureTracker();
-		ft.setTemplate(template);
+		TemplateDetector td = new TemplateDetector();
+		td.setTemplate(template);
 
 		VideoCapture vc = new VideoCapture();
 		vc.open(0);
@@ -43,9 +43,9 @@ public class CapWin extends JFrame {
 		while (true) {
 			vc.read(cam);
 			cam.copyTo(vcam);
-			Mat homo = ft.findHomo(cam, true);
+			Mat homo = td.findHomo(cam, true);
 			if (homo != null) {
-				Mat quad = ft.getQuadFromHomo(homo);
+				Mat quad = td.getQuadFromHomo(homo);
 
 				for (int i = 0; i < quad.total(); i++) {
 					Imgproc.line(vcam, new Point(quad.get(i, 0)[0], quad.get(i, 0)[1]),
@@ -55,7 +55,7 @@ public class CapWin extends JFrame {
 				}
 
 				Mat rvec = new Mat(), tvec = new Mat();
-				ft.solvePnp(homo, CameraData.MY_CAMERA, rvec, tvec);
+				td.solvePnp(homo, CameraData.MY_CAMERA, rvec, tvec);
 			}
 			if (win.captureButtonClicked) {
 				win.captureButtonClicked = false;

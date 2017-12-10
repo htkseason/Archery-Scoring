@@ -19,7 +19,7 @@ import org.opencv.videoio.VideoCapture;
 
 import pers.season.vml.ar.CameraData;
 import pers.season.vml.ar.Engine3D;
-import pers.season.vml.ar.FeatureTracker;
+import pers.season.vml.ar.TemplateDetector;
 import pers.season.vml.ar.MotionFilter;
 import pers.season.vml.util.*;
 
@@ -30,9 +30,9 @@ public final class Entrance {
 	}
 
 	static Mat findLines(Mat camx_0, Mat camx_1, Mat template) {
-		FeatureTracker ft = new FeatureTracker();
-		ft.setTemplate(template);
-		Mat homo = ft.findHomo(camx_0, true, 0.8);
+		TemplateDetector td = new TemplateDetector();
+		td.setTemplate(template);
+		Mat homo = td.findHomo(camx_0, true, 0.8);
 		Mat bg = new Mat();
 		Mat bow = new Mat();
 		Imgproc.warpPerspective(camx_0, bg, homo, template.size(), Imgproc.WARP_INVERSE_MAP);
@@ -88,8 +88,27 @@ public final class Entrance {
 		return result;
 
 	}
-
 	public static void main(String[] args) throws IOException {
+		Mat cam0_0 = Imgcodecs.imread("./cam0_0.jpg", Imgcodecs.IMREAD_GRAYSCALE);
+		Mat cam0_1 = Imgcodecs.imread("./cam0_1.jpg", Imgcodecs.IMREAD_GRAYSCALE);
+		Mat cam1_0 = Imgcodecs.imread("./cam1_0.jpg", Imgcodecs.IMREAD_GRAYSCALE);
+		Mat cam1_1 = Imgcodecs.imread("./cam1_1.jpg", Imgcodecs.IMREAD_GRAYSCALE);
+
+		Mat template = Imgcodecs.imread("./target.jpg");
+		
+		Mat kernel = new Mat(3,3,CvType.CV_32F);
+		kernel.put(0, 0, new float[] {-1,0,1,
+		                             -2,0,2,
+		                             -1,0,1});
+		ImUtils.imshow(cam1_0);
+		cam1_0.convertTo(cam1_0, CvType.CV_32F);
+		Imgproc.filter2D(cam1_0, cam1_0, cam1_0.depth(), kernel);
+		
+		Core.absdiff(cam1_0, new Scalar(0), cam1_0);
+
+		ImUtils.imshow(cam1_0,2f);
+	}
+	public static void main1(String[] args) throws IOException {
 		Mat cam0_0 = Imgcodecs.imread("./cam0_0.jpg", Imgcodecs.IMREAD_GRAYSCALE);
 		Mat cam0_1 = Imgcodecs.imread("./cam0_1.jpg", Imgcodecs.IMREAD_GRAYSCALE);
 		Mat cam1_0 = Imgcodecs.imread("./cam1_0.jpg", Imgcodecs.IMREAD_GRAYSCALE);
