@@ -90,7 +90,6 @@ public final class Entrance {
 		Imgproc.warpPerspective(camx_0, bg, homo, template.size(), Imgproc.WARP_INVERSE_MAP | Imgproc.INTER_CUBIC);
 		Mat bow = new Mat();
 		Imgproc.warpPerspective(camx_1, bow, homo, template.size(), Imgproc.WARP_INVERSE_MAP | Imgproc.INTER_CUBIC);
-
 		Mat sub = new Mat();
 		Core.absdiff(bg, bow, sub);
 
@@ -118,14 +117,39 @@ public final class Entrance {
 
 	}
 
+	static void showSobel(Mat pic) {
+
+		Mat tx = new Mat();
+		Mat ty = new Mat();
+		Imgproc.Sobel(pic, tx, CvType.CV_32F, 1, 0);
+		Imgproc.Sobel(pic, ty, CvType.CV_32F, 0, 1);
+		Core.absdiff(tx, new Scalar(0), tx);
+		Core.absdiff(ty, new Scalar(0), ty);
+		Core.add(tx, ty, tx);
+		Core.normalize(tx, tx, 0, 255, Core.NORM_MINMAX);
+
+		for (int r = 0; r < tx.rows(); r++)
+			for (int c = 0; c < tx.cols(); c++) {
+				double val = tx.get(r, c)[0];
+				double s = 80;
+				double d = Math.sqrt((r - pic.height() / 2) * (r - pic.height() / 2)
+						+ (c - pic.width() / 2) * (c - pic.width() / 2));
+
+				val *= Math.exp(-(d * d) / (s * s));
+				//tx.put(r, c, val);
+			}
+		ImUtils.imshow(tx);
+	}
+
 	public static void main(String[] args) throws IOException {
 
-		for (int N = 0; N < 3; N++) {
+		for (int N = 0; N < 1; N++) {
 			Mat cam0_0 = Imgcodecs.imread(".\\" + N + "-0.jpg", Imgcodecs.IMREAD_GRAYSCALE);
 			Mat cam0_1 = Imgcodecs.imread(".\\" + N + "-1.jpg", Imgcodecs.IMREAD_GRAYSCALE);
 			Mat cam1_0 = Imgcodecs.imread(".\\" + (N + 1) + "-0.jpg", Imgcodecs.IMREAD_GRAYSCALE);
 			Mat cam1_1 = Imgcodecs.imread(".\\" + (N + 1) + "-1.jpg", Imgcodecs.IMREAD_GRAYSCALE);
 			Mat template = Imgcodecs.imread(".\\target-aruco.jpg", Imgcodecs.IMREAD_GRAYSCALE);
+
 			// pre process and find lines
 			Mat nodes = new Mat();
 			Mat lines1 = new Mat(), lines2 = new Mat();
