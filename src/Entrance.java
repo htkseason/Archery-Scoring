@@ -45,16 +45,20 @@ public final class Entrance {
 		Core.gemm(K.inv(), homo, 1, new Mat(), 0, H);
 		double lambda = (Core.norm(H.col(0)) + Core.norm(H.col(1))) * 0.5;
 		Core.divide(H, new Scalar(lambda), H);
+		Mat t = H.col(2).clone();
 		Mat R = H.clone();
 		R.col(0).cross(R.col(1)).copyTo(R.col(2));
-		Mat t = H.col(2).clone();
+		Mat u = new Mat(), vt = new Mat();
+		Core.SVDecomp(R, new Mat(), u, vt, Core.SVD_FULL_UV);
+		Core.gemm(u, vt, 1, new Mat(), 0, R);
+		
 		Mat camLoc = new MatOfPoint3f();
 		Core.multiply(R, new Scalar(-1), R);
 		Core.gemm(R.t(), t, 1, new Mat(), 0, camLoc);
 		camLoc.put(2, 0, -camLoc.get(2, 0)[0]);
 		camLoc = camLoc.reshape(3);
 		camLoc.convertTo(camLoc, CvType.CV_32FC3);
-
+		
 		// get line abc through center
 		double[] abc = new double[3];
 		for (int i = 0; i < lines.rows(); i++) {
@@ -136,7 +140,7 @@ public final class Entrance {
 						+ (c - pic.width() / 2) * (c - pic.width() / 2));
 
 				val *= Math.exp(-(d * d) / (s * s));
-				//tx.put(r, c, val);
+				// tx.put(r, c, val);
 			}
 		ImUtils.imshow(tx);
 	}
